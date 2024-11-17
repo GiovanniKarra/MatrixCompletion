@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 num = "0.4.3"
-pyo3 = "0.23.1"
+pyo3 = { version = "0.23.1", features = ["auto-initialize"] }
 
 [dev-dependencies]
 criterion = "0.4"

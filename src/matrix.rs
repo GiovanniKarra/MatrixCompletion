@@ -4,11 +4,12 @@ use std::ops::Add;
 
 use num::Num;
 
+pub type FMatrix = Matrix<f32>;
 
 #[derive(Debug, Clone)]
 pub struct Matrix<T: Num + Copy> {
-	pub m: usize,
-	pub n: usize,
+	m: usize,
+	n: usize,
 	data: Vec<T>
 }
 

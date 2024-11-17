@@ -5,7 +5,7 @@ import cvxpy as cp
 import numpy as np
 
 
-def complete_matrix_ext(m: int, n: int, matrix: list, samples: set[tuple[int, int]] = None) -> list:
+def complete_matrix_ext(m: int, n: int, matrix: list, samples: list[tuple[int, int]] = None) -> list:
 	assert len(matrix) == m*n
 
 	np_matrix = np.array(matrix).reshape((m, n))
@@ -37,21 +37,25 @@ def complete_matrix(matrix: np.ndarray, samples: set[tuple[int, int]] = None) ->
 
 
 if __name__ == "__main__":
-	m, n = 50, 20
-	rand_matrix = np.zeros((m, n))
-	r = 6
-	for _ in range(r):
-		u = np.random.random((m, 1))
-		v = np.random.random((1, n))
-		s = random()*100
-		rand_matrix += s * u @ v
+	# m, n = 50, 20
+	# rand_matrix = np.zeros((m, n))
+	# r = 6
+	# for _ in range(r):
+	# 	u = np.random.random((m, 1))
+	# 	v = np.random.random((1, n))
+	# 	s = random()*100
+	# 	rand_matrix += s * u @ v
 
-	k = 800
-	samples = set(sample(list(iter_product(range(m), range(n))), k=k))
+	# k = 800
+	# samples = set(sample(list(iter_product(range(m), range(n))), k=k))
 
-	sampled_matrix = np.zeros((m, n))
-	for i, j in samples: sampled_matrix[i, j] = rand_matrix[i, j]
+	# sampled_matrix = np.zeros((m, n))
+	# for i, j in samples: sampled_matrix[i, j] = rand_matrix[i, j]
 
-	X = complete_matrix(sampled_matrix)
+	# X = complete_matrix(sampled_matrix)
 
-	print(np.max(np.abs(X-rand_matrix)))
+	# print(np.max(np.abs(X-rand_matrix)))
+
+	matrix = np.array([[1, 2, 3], [2, 4, 6], [3, 6, 9]])
+	X = complete_matrix(matrix, {(0, 0), (1, 1), (2, 2), (0, 2), (2, 0), (1, 0)})
+	print(X)
