@@ -5,21 +5,23 @@ import cvxpy as cp
 import numpy as np
 
 
-def complete_matrix_ext(m: int, n: int, matrix: list) -> list:
+def complete_matrix_ext(m: int, n: int, matrix: list, samples: set[tuple[int, int]] = None) -> list:
 	assert len(matrix) == m*n
 
 	np_matrix = np.array(matrix).reshape((m, n))
-	res = complete_matrix(np_matrix)
+	res = complete_matrix(np_matrix, samples)
 
 	return res.reshape(-1).tolist()
 
-def complete_matrix(matrix: np.ndarray) -> np.ndarray:
+def complete_matrix(matrix: np.ndarray, samples: set[tuple[int, int]] = None) -> np.ndarray:
 	m, n = matrix.shape
-	samples = set()
-	for i in range(m):
-		for j in range(n):
-			if matrix[i, j] != 0:
-				samples.add((i, j))
+
+	if samples is None:
+		samples = set()
+		for i in range(m):
+			for j in range(n):
+				if matrix[i, j] != 0:
+					samples.add((i, j))
 
 	X = cp.Variable((m, n))
 

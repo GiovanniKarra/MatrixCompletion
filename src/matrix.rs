@@ -9,7 +9,7 @@ use num::Num;
 pub struct Matrix<T: Num + Copy> {
 	pub m: usize,
 	pub n: usize,
-	pub data: Vec<T>
+	data: Vec<T>
 }
 
 impl<T: Num + Copy> Matrix<T> {
@@ -36,6 +36,16 @@ impl<T: Num + Copy> Matrix<T> {
 	pub fn set(&mut self, i: usize, j: usize, val: T) {
 		assert!(i < self.m && j < self.n, "Index out of bound");
 		self.data[i*self.n + j] = val;
+	}
+	pub fn set_data(&mut self, new_data: Vec<T>) {
+		assert!(new_data.len() == self.m*self.n, "Size change not allowed");
+		self.data = new_data;
+	}
+	pub fn size(&self) -> (usize, usize) {
+		(self.m, self.n)
+	}
+	pub fn to_vec(&self) -> Vec<T> {
+		self.data.clone()
 	}
 }
 
