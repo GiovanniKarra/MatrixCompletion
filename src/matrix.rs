@@ -48,6 +48,13 @@ impl<T: Num + Copy> Matrix<T> {
 	pub fn to_vec(&self) -> Vec<T> {
 		self.data.clone()
 	}
+	pub fn to_vec_vec(&self) -> Vec<Vec<T>> {
+		let mut ret: Vec<Vec<T>> = Vec::new();
+		for i in 0..self.m {
+			ret.push(self.data.as_slice()[i*self.n..(i+1)*self.n].to_vec());
+		}
+		ret
+	}
 }
 
 impl<T: Num + Copy> PartialEq for Matrix<T> {
