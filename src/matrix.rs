@@ -19,21 +19,6 @@ pub struct Matrix<T: Float> {
 // }
 
 
-fn mult_into<T: Float>(left: &Matrix<T>, right: &Matrix<T>, out: &mut Matrix<T>) {	
-		let (rows, merge_left) = left.size();
-		let (merge_right, cols) = right.size();
-		assert!(merge_left == merge_right, "Input matrix dimensions don't match");
-		assert!(out.size() == (rows, cols), "Output matrix dimensions don't match with input");
-
-		for i in 0..rows {
-			for j in 0..cols {
-				for k in 0..merge_left {
-					out[i][j] = out[i][j] + left[i][k]*right[k][j];
-				}
-			}
-		}
-}
-
 impl<T: Float> Matrix<T> {
 	pub fn new<D>(m: usize, n: usize, data: D) -> Self
 	where D : Into<Box<[T]>> {
@@ -112,29 +97,35 @@ impl<T: Float> PartialEq for Matrix<T> {
 	}
 }
 
+impl<T: Float> Matrix<T> {
+	fn add_into(left: Self, right: &Self) -> Self {
+		assert!(left.size() == right.size(), "Matrix dimensions don't match");
+		let mut data = left.data;
+		for i in 0..data.len() {
+			data[i] = data[i] + right.data[i];
+		}
+		Self {m: left.m, n: left.n, data: data}
+	}
+}
+
 impl<T: Float> Add<&Self> for Matrix<T> {
 	type Output = Matrix<T>;
 	fn add(self, other: &Self) -> Self::Output {
-		assert!(self.size() == other.size(), "Matrix dimensions don't match");
-		let mut data = self.data;
-		for i in 0..data.len() {
-			data[i] = data[i] + other.data[i];
-		}
-		Self::Output {m: self.m, n: self.n, data: data}
+		Matrix::add_into(self, other)
 	}
 }
 
 impl<T: Float> Add for Matrix<T> {
 	type Output = Matrix<T>;
 	fn add(self, other: Self) -> Self::Output {
-		other+&self
+		other + &self
 	}
 }
 
 impl<T: Float> Add<Matrix<T>> for &Matrix<T> {
 	type Output = Matrix<T>;
 	fn add(self, other: Matrix<T>) -> Self::Output {
-		other+self
+		other + self
 	}
 }
 
@@ -160,11 +151,28 @@ impl<T: Float> AddAssign for Matrix<T> {
 	}
 }
 
+impl<T: Float> Matrix<T> {
+	fn mult_into(left: &Matrix<T>, right: &Matrix<T>, out: &mut Matrix<T>) {	
+		let (rows, merge_left) = left.size();
+		let (merge_right, cols) = right.size();
+		assert!(merge_left == merge_right, "Input matrix dimensions don't match");
+		assert!(out.size() == (rows, cols), "Output matrix dimensions don't match with input");
+
+		for i in 0..rows {
+			for j in 0..cols {
+				for k in 0..merge_left {
+					out[i][j] = out[i][j] + left[i][k]*right[k][j];
+				}
+			}
+		}
+	}
+}
+
 impl<T: Float> Mul for &Matrix<T> {
 	type Output = Matrix<T>;
 	fn mul(self, other: Self) -> Self::Output {
 		let mut new = Matrix::empty(self.m, other.n);
-		mult_into(self, other, &mut new);
+		Matrix::mult_into(self, other, &mut new);
 		new
 	}
 }
