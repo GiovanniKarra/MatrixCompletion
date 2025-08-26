@@ -2,4 +2,4 @@ mod matrix;
 mod completion;
 
 pub use matrix::*;
-pub use completion::*;
+// pub use completion::*;
