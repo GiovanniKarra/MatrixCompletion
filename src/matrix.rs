@@ -1,8 +1,9 @@
 use std::ops::{Add, AddAssign, Index, IndexMut, Mul};
 use std::fmt::{Debug, Display};
 
-use num::Float;
 use rand::{self, Rng};
+
+use super::types::{Float, Dot};
 
 
 #[derive(Clone, Debug)]
@@ -62,6 +63,14 @@ impl<T: Float> Matrix<T> {
 
 	pub fn size(&self) -> (usize, usize) {
 		(self.m, self.n)
+	}
+
+	pub fn nrows(&self) -> usize {
+		self.m
+	}
+
+	pub fn ncols(&self) -> usize {
+		self.n
 	}
 
 	pub fn len(&self) -> usize {
@@ -140,7 +149,7 @@ impl<T: Float> AddAssign<&Self> for Matrix<T> {
 	fn add_assign(&mut self, other: &Self) {
 		assert!(self.size() == other.size(), "Matrix dimensions don't match");
 		for i in 0..self.data.len() {
-			self.data[i] = self.data[i] + other.data[i];
+			self.data[i] += other.data[i];
 		}
 	}
 }
@@ -161,7 +170,7 @@ impl<T: Float> Matrix<T> {
 		for i in 0..rows {
 			for j in 0..cols {
 				for k in 0..merge_left {
-					out[i][j] = out[i][j] + left[i][k]*right[k][j];
+					out[i][j] += left[i][k]*right[k][j];
 				}
 			}
 		}
@@ -198,10 +207,40 @@ impl<T: Float> Mul<Matrix<T>> for &Matrix<T> {
 	}
 }
 
+// impl<T: Float> Matrix<T> {
+// 	fn mult_scalar
+// }
+
+// impl<T: Float> Mul<T> for Matrix<T> {
+// 	type Output = Self;
+// 	fn mul(self, scalar: T) -> Self::Output {
+// 		let mut data = self.data;
+// 		data
+// 			.iter_mut()
+// 			.for_each(|x| *x = *x * scalar);
+// 		Self {
+// 			m: self.m,
+// 			n: self.n,
+// 			data: data
+// 		}
+// 	}
+// }
+
 impl<T: Float> Display for Matrix<T> {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "LOOOL")?;
 		Ok(())
+	}
+}
+
+impl<T: Float> Dot<T> for Matrix<T> {
+	fn dot(&self, other: &Self) -> T {
+		assert!(self.len() == other.len(), "Dot product matrix size mismatch");
+		self.data
+			.iter()
+			.zip(other.data.iter())
+			.map(|(x, y)| (*x) * (*y))
+			.sum()
 	}
 }
 
@@ -362,5 +401,38 @@ mod tests {
 		let left = Matrix::new(1, 3, vec![1.0, 0.0, 0.0]);
 		let res = left * right;
 		assert_eq!(res, Matrix::new(1, 3, vec![1.0, 2.0, 3.0]));
+
+		let right = Matrix::new(2, 3, vec![1.0, 1.0, 2.0, 3.0, 0.0, 0.0]);
+		let left = Matrix::new(2, 2, vec![2.0, 2.0, 1.0, 0.0]);
+		assert_eq!(left*right, Matrix::new(2, 3, vec![8.0, 2.0, 4.0, 1.0, 1.0, 2.0]));
+	}
+	
+	#[test]
+	#[should_panic]
+	fn mult_panic() {
+		let left = Matrix::new(2, 3, vec![1.0, 1.0, 2.0, 3.0, 0.0, 0.0]);
+		let right = Matrix::new(2, 2, vec![2.0, 2.0, 1.0, 0.0]);
+		let _ = left * right;
+	}
+
+	#[test]
+	fn test_dot() {
+		let left = Matrix::new(3, 3, vec![1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
+		let right = Matrix::new(3, 3, vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]);
+		let res = left.dot(&right);
+		assert_eq!(res, 15.0);
+
+		let left = Matrix::new(1, 3, vec![1.0, 0.0, 0.0]);
+		let right = Matrix::new(3, 1, vec![1.0, 2.0, 3.0]);
+		let res = left.dot(&right);
+		assert_eq!(res, 1.0);
+	}
+
+	#[test]
+	#[should_panic]
+	fn dot_panic() {
+		let left = Matrix::new(1, 3, vec![1.0, 0.0, 0.0]);
+		let right = Matrix::new(4, 1, vec![1.0, 2.0, 3.0, 4.0]);
+		let _ = left.dot(&right);
 	}
 }
